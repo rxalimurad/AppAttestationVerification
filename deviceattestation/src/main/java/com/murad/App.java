@@ -130,10 +130,11 @@ public class App {
                             System.out.println("Counter check failed");
                             return;
                         }
-                        // Step 7:AAGUID
+                        // Step 9:AAGUID
                         // Determines if the app attest environment is development or production
+                        System.out.println(isReleaseModelUsingAAGUID(authDataBytes));
                         //
-                        // Step 8: credentialId
+                        // Step 7: credentialId
                         // Verify KeyIdentifier with credentialID
 
                         byte[] credentialIDByte = extractCredentialID(authDataBytes);
@@ -147,9 +148,17 @@ public class App {
                             System.out.println("Credential ID check successful");
                         } 
 
-                        // step 9: rpID
+                        // step 8: rpID
                         // Compare rpID with appID
-
+                        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                        byte[] hash = digest.digest(appId.getBytes(StandardCharsets.UTF_8));
+                        byte[] rpID = Arrays.copyOfRange(authDataBytes, 0, 32);
+                        if (!(areEqual(hash, rpID))) {
+                            System.out.println("rpID check failed");
+                            return;
+                        } else {
+                            System.out.println("rpID check successful");
+                        }
                         //print authData for debugging
                         // String str = new String(authDataBytes, StandardCharsets.UTF_8); // for UTF-8 encoding
                         // System.out.println(str);
@@ -164,6 +173,23 @@ public class App {
             e.printStackTrace();
         }
 
+    }
+    public static Boolean isReleaseModelUsingAAGUID(byte[] authData) {
+        // Define the byte arrays representing appAttest and appAttestDevelop
+        byte[] appAttestBytes = "appattest".getBytes();
+        byte[] appAttestDevelopBytes = "appattestdevelop".getBytes();
+
+        // Extract bytes[37..<53] from authData
+        byte[] extractedBytes = Arrays.copyOfRange(authData, 37, 53);
+
+        // Check if the extracted bytes match with either appAttestBytes or appAttestDevelopBytes
+        if (Arrays.equals(extractedBytes, appAttestBytes)) {
+            return true;
+        } else if (Arrays.equals(extractedBytes, appAttestDevelopBytes)) {
+            return false;
+        } else {
+            return false;
+        }
     }
 
     private static byte[] nonce(byte[] challenge, byte[] authenticatorData) throws NoSuchAlgorithmException {

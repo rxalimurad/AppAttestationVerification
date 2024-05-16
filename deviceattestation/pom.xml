@@ -30,6 +30,11 @@
     <artifactId>cbor</artifactId>
     <version>0.9</version>
 </dependency>
+<dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.77</version>
+		</dependency>
   </dependencies>
 
   <build>
